@@ -26,6 +26,20 @@ Current maintained fork:
 - Built-in update check against this fork releases.
 - Installer with automatic Bonjour handling when missing.
 
+## Changelog (Fork Highlights)
+
+### What is new in this fork
+
+- Windows-11-style tray Control Center popup with live system status.
+- Colored tray icon state engine (green running, red error, neutral idle).
+- Dependency diagnostics for runtime and Bonjour availability.
+- Integrated update check targeting `koerby/uxplay-windows` releases.
+- Improved installer behavior:
+  - Prevent duplicate firewall rules.
+  - Remove app firewall rules on uninstall.
+  - Keep Bonjour installed on uninstall.
+- Improved build flow with `build.bat`, `build-portable.ps1`, and `build-setup.ps1`.
+
 ## Download
 
 Download the latest release here:
