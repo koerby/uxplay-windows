@@ -1,52 +1,93 @@
-# FREE AirPlay to your Windows PC
-Free as both in "freedom" and "free beer"!
+# uxplay-windows
 
-## Installation
-Download the latest version of uxplay-windows from [**releases**](https://github.com/leapbtw/uxplay-windows/releases/latest).
+Free AirPlay receiver setup for Windows 10/11, based on [UxPlay](https://github.com/FDH2/UxPlay), with a tray-first control experience and installer workflow.
 
-After installing, control uxplay-windows from it's [tray icon](https://www.odu.edu/sites/default/files/documents/win10-system-tray.pdf)! Right-click it to start or stop AirPlay. You can also set it to run automatically when your PC starts
+## Fork Attribution
 
-## FAQ — Please Read!
-> [!NOTE]
-> *What is uxplay-windows?*
-> 
-> [UxPlay](https://github.com/FDH2/UxPlay/) allows you to screen share from your Apple devices to non-Apple ones using AirPlay.
-> 
-> [uxplay-windows](.) (this project) wraps binaries of UxPlay into a fully featured App for Windows 10/11 users, making it easier for those who may find compiling UxPlay challenging. Most other software achieving the same functionality as `uxplay-windows` is usually paid and non-free.
+This repository is a fork and continuation of:
 
+- https://github.com/leapbtw/uxplay-windows
 
-> [!TIP]
-> *My \<apple device\> can't connect to my PC!!!*
-> 1. Check if the `uxplay.exe` is running: right-click the tray icon and restart it.
-> 2. Toggle Wi-Fi OFF on your iPhone/iPad/Mac, wait a couple of seconds and reconnect. It might take a few attempts.
-> 3. As last resort, close uxplay-windows, open Task Manager and restart `Bonjour Service` from the Services tab. Then reopen uxplay-windows and try again
+Current maintained fork:
 
-> [!IMPORTANT]
-> *Why is Windows Defender complaining during installation?*
-> 
-> ![alt text](https://raw.githubusercontent.com/leapbtw/uxplay-windows/refs/heads/main/stuff/defender.png "defender")
->
-> Just click on `More info` and it will let you install. It complains because the executable is not signed. If you don't trust this software you can always build it yourself! See below.
->
-> If prompted by Windows Firewall, please **allow** uxplay-windows to ensure it functions properly.
+- https://github.com/koerby/uxplay-windows
 
+## What This Project Does
 
-> [!NOTE]
->  *How do I build this software myself?*
-> 
-> Please see [BUILDING.md](./BUILDING.md)
-<br>
+`uxplay-windows` packages `UxPlay` plus required runtime files into a practical Windows app with:
 
-## TODO
-- make colored icon to show if uxplay is running or not
-- make an update checker
+- Tray-based controls for start/stop/restart.
+- Windows-11-style Control Center popup with quick toggles and live status.
+- Health diagnostics (runtime, Bonjour service, process status).
+- Colored tray icon states:
+  - Green: AirPlay running.
+  - Red: missing dependency or service/process issue.
+  - Neutral: idle/ready.
+- Built-in update check against this fork releases.
+- Installer with automatic Bonjour handling when missing.
 
-## Known Issues
-- uxplay bugs out when waking PC from Sleep
-  - you can fix this by killing uxplay.exe and restarting Bonjour Service, and restarting uxplay.exe. Also restarting your PC might fix this.
+## Download
+
+Download the latest release here:
+
+- https://github.com/koerby/uxplay-windows/releases/latest
+
+## Installation Notes
+
+1. Install using the provided setup executable.
+2. If Bonjour Service is not installed, setup can download/install it.
+3. After install, use the tray icon or `Open Control Center` from tray menu.
+
+If Windows SmartScreen warns about unsigned binaries, click `More info` and proceed only if you trust the build source.
+
+## Runtime And Firewall Behavior
+
+- Installer/update ensures firewall rule for `uxplay.exe` without creating duplicates.
+- Existing stale firewall rule entries are replaced automatically.
+- Uninstall removes app-related firewall rules (`uxplay-windows` and legacy `uxplay`).
+- Uninstall terminates running `uxplay-windows.exe` and `uxplay.exe` processes before removal.
+- Bonjour Service is not removed during app uninstall.
+
+## Control Center
+
+The popup Control Center provides:
+
+- Start / Stop / Restart AirPlay.
+- Check for updates.
+- Enable/disable autostart.
+- One-click health check.
+- Live status cards for runtime, Bonjour, engine, and autostart.
+
+## Build
+
+Quick local options:
+
+- Portable build: `build-portable.ps1`
+- Installer build: `build-setup.ps1`
+- Interactive helper: `build.bat`
+
+Detailed notes:
+
+- See `BUILDING.md`
+
+## Troubleshooting
+
+If your Apple device cannot connect:
+
+1. Open tray menu and use `Restart AirPlay + Bonjour`.
+2. Ensure Bonjour Service is running.
+3. Confirm firewall is enabled for `uxplay.exe`.
+4. Toggle Wi-Fi off/on on the Apple device.
+
+Known edge case:
+
+- Resume from sleep can leave AirPlay/Bonjour in a bad state; restart from the tray/control center.
 
 ## Reporting Issues
-Please report issues related to the build system created with GitHub Actions in this repository. For issues related to other parts of this software, report them in their respective repositories.
+
+- Fork-specific packaging, installer, tray, and control center issues: report in this repository.
+- Core AirPlay engine issues may come from upstream components (`UxPlay`, GStreamer, Bonjour stack).
 
 ## License
-Please take a look at the [LICENSE](./LICENSE).
+
+See `LICENSE.md` for license details and attribution.
