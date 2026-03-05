@@ -129,10 +129,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller pystray
 
-          pyinstaller --noconsole --onedir --clean --name uxplay-windows --icon=icon.ico tray.py
+          pyinstaller --noconsole --onedir --clean --name uxplay-windows --icon=uxplay.ico tray.py
 
           cp -r D:\a\uxplay-windows\uxplay-windows\UxPlay\build\artifact\* D:\a\uxplay-windows\uxplay-windows\dist\uxplay-windows\_internal
-          cp D:\a\uxplay-windows\uxplay-windows\icon.ico D:\a\uxplay-windows\uxplay-windows\dist\uxplay-windows\_internal
+          cp D:\a\uxplay-windows\uxplay-windows\uxplay.ico D:\a\uxplay-windows\uxplay-windows\dist\uxplay-windows\_internal
           
       - name: compile the installer with inno setup
         run: .$(Join-Path -Path ${env:PROGRAMFILES(X86)} -ChildPath 'Inno Setup 6\\ISCC.exe') $(Join-Path -Path $(Get-Location) -ChildPath "script.iss")
