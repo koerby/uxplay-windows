@@ -18,8 +18,16 @@ if "%APP_VERSION%"=="" (
   exit /b 1
 )
 
+echo %APP_VERSION%| findstr /R "^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$" >nul
+if errorlevel 1 (
+  echo ERROR: Version must be SemVer-like, e.g. 1.2.3
+  exit /b 1
+)
+
 >"version.txt" echo %APP_VERSION%
 echo Wrote version.txt with %APP_VERSION%
+
+set "RUNTIME_CACHE=%cd%\.runtime-cache\_internal"
 
 set "RUNTIME_SOURCE=%~2"
 if "%RUNTIME_SOURCE%"=="" set /p RUNTIME_SOURCE=Runtime _internal path ^(optional, for uxplay.exe + libs^): 
@@ -28,8 +36,10 @@ if /I "%RUNTIME_SOURCE%"=="auto" set "RUNTIME_SOURCE="
 if "%RUNTIME_SOURCE%"=="" (
   echo No runtime path entered. Trying auto-detect...
   for %%P in (
+    "%RUNTIME_CACHE%"
     "%ProgramFiles(x86)%\uxplay-windows\_internal"
     "%ProgramFiles%\uxplay-windows\_internal"
+    "%cd%\.runtime-install\_internal"
     "%cd%\runtime\_internal"
   ) do (
     if exist "%%~P\bin\uxplay.exe" (
@@ -43,11 +53,50 @@ if "%RUNTIME_SOURCE%"=="" (
 if not "%RUNTIME_SOURCE%"=="" (
   echo Using runtime source: %RUNTIME_SOURCE%
 ) else (
-  echo WARNING: Runtime source not found automatically. Build continues without runtime.
+  echo WARNING: Runtime source not found automatically.
+)
+
+if not "%RUNTIME_SOURCE%"=="" (
+  if exist "%RUNTIME_SOURCE%\bin\uxplay.exe" (
+    if /I not "%RUNTIME_SOURCE%"=="%RUNTIME_CACHE%" (
+      echo Syncing runtime into cache: %RUNTIME_CACHE%
+      if not exist "%RUNTIME_CACHE%\bin" mkdir "%RUNTIME_CACHE%\bin"
+      robocopy "%RUNTIME_SOURCE%\bin" "%RUNTIME_CACHE%\bin" /E /R:1 /W:1 >nul
+      if errorlevel 8 (
+        echo ERROR: Failed while syncing runtime bin to cache.
+        exit /b 1
+      )
+
+      if exist "%RUNTIME_SOURCE%\lib" (
+        if not exist "%RUNTIME_CACHE%\lib" mkdir "%RUNTIME_CACHE%\lib"
+        robocopy "%RUNTIME_SOURCE%\lib" "%RUNTIME_CACHE%\lib" /E /R:1 /W:1 >nul
+        if errorlevel 8 (
+          echo ERROR: Failed while syncing runtime lib to cache.
+          exit /b 1
+        )
+      )
+
+      if exist "%RUNTIME_SOURCE%\uxplay.ico" copy /y "%RUNTIME_SOURCE%\uxplay.ico" "%RUNTIME_CACHE%\uxplay.ico" >nul
+    )
+  ) else (
+    echo WARNING: Runtime source has no bin\uxplay.exe. Skipping runtime cache sync.
+  )
+)
+
+set "RUNTIME_EFFECTIVE="
+if exist "%RUNTIME_CACHE%\bin\uxplay.exe" set "RUNTIME_EFFECTIVE=%RUNTIME_CACHE%"
+if "%RUNTIME_EFFECTIVE%"=="" if not "%RUNTIME_SOURCE%"=="" if exist "%RUNTIME_SOURCE%\bin\uxplay.exe" set "RUNTIME_EFFECTIVE=%RUNTIME_SOURCE%"
+
+if not "%RUNTIME_EFFECTIVE%"=="" (
+  echo Runtime payload source for this build: %RUNTIME_EFFECTIVE%
+) else (
+  echo WARNING: No valid runtime payload found ^(cache or source^). Build continues without runtime.
 )
 
 set "BUILD_INSTALLER=%~3"
 if "%BUILD_INSTALLER%"=="" set /p BUILD_INSTALLER=Build installer too? ^(y/n^): 
+if /I "%BUILD_INSTALLER%"=="yes" set "BUILD_INSTALLER=y"
+if /I "%BUILD_INSTALLER%"=="no" set "BUILD_INSTALLER=n"
 if /I not "%BUILD_INSTALLER%"=="y" if /I not "%BUILD_INSTALLER%"=="n" (
   echo ERROR: Please answer y or n.
   exit /b 1
@@ -72,7 +121,6 @@ if errorlevel 1 exit /b 1
 echo Cleaning old artifacts...
 if exist build rmdir /s /q build
 if exist dist rmdir /s /q dist
-if exist Output rmdir /s /q Output
 if exist uxplay-windows.spec del /q uxplay-windows.spec
 
 echo Building tray executable...
@@ -83,21 +131,25 @@ if not exist "dist\uxplay-windows\_internal" mkdir "dist\uxplay-windows\_interna
 copy /y "version.txt" "dist\uxplay-windows\_internal\version.txt" >nul
 copy /y "uxplay.ico" "dist\uxplay-windows\_internal\uxplay.ico" >nul
 
-if not "%RUNTIME_SOURCE%"=="" (
-  if exist "%RUNTIME_SOURCE%\bin\uxplay.exe" (
-    echo Copying runtime payload from %RUNTIME_SOURCE%
-    xcopy "%RUNTIME_SOURCE%\bin" "dist\uxplay-windows\_internal\bin\" /E /I /Y >nul
-    xcopy "%RUNTIME_SOURCE%\lib" "dist\uxplay-windows\_internal\lib\" /E /I /Y >nul
-    if exist "%RUNTIME_SOURCE%\uxplay.ico" (
-      copy /y "%RUNTIME_SOURCE%\uxplay.ico" "dist\uxplay-windows\_internal\uxplay.ico" >nul
+if not "%RUNTIME_EFFECTIVE%"=="" (
+  if exist "%RUNTIME_EFFECTIVE%\bin\uxplay.exe" (
+    echo Copying runtime payload from %RUNTIME_EFFECTIVE%
+    robocopy "%RUNTIME_EFFECTIVE%\bin" "dist\uxplay-windows\_internal\bin" /E /R:1 /W:1 >nul
+    if exist "%RUNTIME_EFFECTIVE%\lib" (
+      robocopy "%RUNTIME_EFFECTIVE%\lib" "dist\uxplay-windows\_internal\lib" /E /R:1 /W:1 >nul
     ) else (
-      echo WARNING: %RUNTIME_SOURCE%\uxplay.ico not found. App icon in _internal may be missing.
+      echo WARNING: Runtime payload has no lib folder. Continuing.
+    )
+    if exist "%RUNTIME_EFFECTIVE%\uxplay.ico" (
+      copy /y "%RUNTIME_EFFECTIVE%\uxplay.ico" "dist\uxplay-windows\_internal\uxplay.ico" >nul
+    ) else (
+      echo WARNING: %RUNTIME_EFFECTIVE%\uxplay.ico not found. App icon in _internal may be missing.
     )
   ) else (
-    echo WARNING: Runtime source does not contain bin\uxplay.exe. Skipping runtime copy.
+    echo WARNING: Runtime payload does not contain bin\uxplay.exe. Skipping runtime copy.
   )
 ) else (
-  echo WARNING: No runtime source provided. AirPlay runtime not included.
+  echo WARNING: No runtime payload available. AirPlay runtime not included.
 )
 
 if /I "%BUILD_INSTALLER%"=="y" (
@@ -125,14 +177,14 @@ if /I "%BUILD_INSTALLER%"=="y" (
   if errorlevel 1 exit /b 1
 
   echo Building installer with Inno Setup...
-  "!ISCC!" "script.iss"
+  "!ISCC!" "/Odist" "script.iss"
   if errorlevel 1 exit /b 1
 )
 
 echo.
 echo Build complete.
 echo Portable output: dist\uxplay-windows\uxplay-windows.exe
-if /I "%BUILD_INSTALLER%"=="y" echo Installer output: Output\uxplay-win_setup_v%APP_VERSION%.exe
+if /I "%BUILD_INSTALLER%"=="y" echo Installer output: dist\uxplay-win_setup_v%APP_VERSION%.exe
 
 echo.
 echo Optional firewall rule ^(run as Admin^):
