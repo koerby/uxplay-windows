@@ -62,6 +62,37 @@ If Windows SmartScreen warns about unsigned binaries, click `More info` and proc
 - Uninstall terminates running `uxplay-windows.exe` and `uxplay.exe` processes before removal.
 - Bonjour Service is not removed during app uninstall.
 
+## Audio (AirPlay Sound)
+
+Short answer: audio issues are often only partially fixable in this fork.
+
+- `uxplay-windows` controls packaging, installer behavior, runtime layout, and process/service handling.
+- Actual AirPlay decoding/stream behavior is handled by upstream `UxPlay` plus available media runtime components.
+
+This means:
+
+- If audio fails because of packaging/runtime files, we can fix it here.
+- If audio fails due to an upstream UxPlay bug/regression/device compatibility issue, it must be fixed upstream.
+
+### Audio troubleshooting checklist
+
+1. Restart from tray/control center (`Restart` or `Restart Bonjour (Admin)`).
+2. Verify `Bonjour Service` is running.
+3. Ensure iPhone/iPad and PC are on the same network segment.
+4. Try reconnecting AirPlay from iOS (disable/enable and reconnect target).
+5. Test with latest release from this fork and, if possible, compare with latest upstream `UxPlay` runtime.
+6. If video works but audio does not, report details (iOS version, device model, runtime version) in Issues.
+
+### Reporting audio issues effectively
+
+Include these details in bug reports:
+
+- Windows version
+- iOS/iPadOS/macOS version + sender device
+- whether video works while audio fails
+- whether issue appears after sleep/wake
+- logs from `%APPDATA%\uxplay-windows\uxplay-windows.log`
+
 ## Control Center
 
 The popup Control Center provides:
@@ -92,6 +123,12 @@ If your Apple device cannot connect:
 2. Ensure Bonjour Service is running.
 3. Confirm firewall is enabled for `uxplay.exe`.
 4. Toggle Wi-Fi off/on on the Apple device.
+
+If mirroring works but no sound is heard:
+
+1. Run `Restart Bonjour (Admin)` once.
+2. Use `Restart` from Control Center.
+3. Reconnect AirPlay and test again.
 
 Known edge case:
 

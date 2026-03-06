@@ -121,6 +121,7 @@ if errorlevel 1 exit /b 1
 echo Cleaning old artifacts...
 if exist build rmdir /s /q build
 if exist dist rmdir /s /q dist
+if exist Output rmdir /s /q Output
 if exist uxplay-windows.spec del /q uxplay-windows.spec
 
 echo Building tray executable...

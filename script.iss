@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "uxplay-windows"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.2.1"
 #define MyAppPublisher "github.com/koerby"
 #define MyAppPublisherURL "https://github.com/koerby"
 #define MyAppSupportURL "https://github.com/koerby/uxplay-windows/issues"
@@ -31,6 +31,7 @@ DefaultDirName={autopf}\uxplay-windows
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
+OutputDir=dist
 OutputBaseFilename=uxplay-win_setup_v{#MyAppVersion}
 ;SetupIconFile=uxplay.ico
 UninstallDisplayIcon={app}\uxplay-windows.exe
@@ -39,6 +40,8 @@ VersionInfoCompany={#MyAppPublisher}
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+CloseApplications=yes
+RestartApplications=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -85,8 +88,6 @@ type
 
 // Variables
 var
-  SetupInfoPage: TWizardPage;
-  SetupInfoLabel: TNewStaticText;
   BonjourDownloadPage: TDownloadWizardPage;
   BonjourInstallNeeded: Boolean;
 
@@ -311,33 +312,19 @@ end;
 procedure InitializeWizard;
 begin
   BonjourInstallNeeded := False;
-
-  SetupInfoPage := CreateCustomPage(
-    wpWelcome,
-    'Before You Install',
-    'Please review network and download requirements'
-  );
-  SetupInfoLabel := TNewStaticText.Create(SetupInfoPage);
-  SetupInfoLabel.Parent := SetupInfoPage.Surface;
-  SetupInfoLabel.Left := ScaleX(0);
-  SetupInfoLabel.Top := ScaleY(0);
-  SetupInfoLabel.Width := SetupInfoPage.SurfaceWidth;
-  SetupInfoLabel.Height := ScaleY(150);
-  SetupInfoLabel.AutoSize := False;
-  SetupInfoLabel.WordWrap := True;
-  SetupInfoLabel.Caption :=
-    'Internet access may be required during installation.' + #13#10 + #13#10 +
-    'If Bonjour Service is not installed, setup will download and run Apple Bonjour installer (BonjourPSSetup.exe).' + #13#10 + #13#10 +
-    'If Bonjour is already installed, no additional components are downloaded by setup.';
   
   // Check if Bonjour is installed
   if not IsBonjourInstalled() then
   begin
     BonjourInstallNeeded := True;
 
-    MsgBox('Bonjour Services was not found and will be installed automatically now.' + #13#10#13#10 +
-           'You may see the Bonjour installer window during setup.',
-           mbInformation, MB_OK);
+    MsgBox(
+      'Bonjour Service is required for AirPlay and is not installed on this system.' + #13#10#13#10 +
+      'Setup will now download Bonjour from the internet and install it automatically.' + #13#10 +
+      'An active internet connection is required for this step.',
+      mbInformation,
+      MB_OK
+    );
 
     // Create download page
     BonjourDownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), 'Downloading Bonjour...', @OnDownloadProgress);
@@ -352,8 +339,62 @@ var
   BonjourSetupPath: String;
   ExtractPath: String;
   BonjourMsiPath: String;
+  ProcessRunning: Boolean;
 begin
   Result := '';
+
+  { Ensure running app/runtime processes do not block overwrite on updates. }
+  try
+    ProcessRunning := IsProcessRunning('uxplay-windows.exe');
+    if ProcessRunning then
+    begin
+      Log('Detected running uxplay-windows.exe during install/update. Attempting termination...');
+      if KillProcess('uxplay-windows.exe') then
+      begin
+        Sleep(400);
+        while IsProcessRunning('uxplay-windows.exe') do
+        begin
+          if not KillProcess('uxplay-windows.exe') then
+            Break;
+          Sleep(400);
+        end;
+      end;
+
+      if IsProcessRunning('uxplay-windows.exe') then
+      begin
+        Result := 'Could not close uxplay-windows.exe automatically. Please close it and run setup again.';
+        Exit;
+      end;
+    end;
+  except
+    Log('Exception while closing uxplay-windows.exe: ' + GetExceptionMessage);
+  end;
+
+  try
+    ProcessRunning := IsProcessRunning('uxplay.exe');
+    if ProcessRunning then
+    begin
+      Log('Detected running uxplay.exe during install/update. Attempting termination...');
+      if KillProcess('uxplay.exe') then
+      begin
+        Sleep(400);
+        while IsProcessRunning('uxplay.exe') do
+        begin
+          if not KillProcess('uxplay.exe') then
+            Break;
+          Sleep(400);
+        end;
+      end;
+
+      if IsProcessRunning('uxplay.exe') then
+      begin
+        Result := 'Could not close uxplay.exe automatically. Please close it and run setup again.';
+        Exit;
+      end;
+    end;
+  except
+    Log('Exception while closing uxplay.exe: ' + GetExceptionMessage);
+  end;
   
   if BonjourInstallNeeded then
   begin
