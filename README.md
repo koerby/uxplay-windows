@@ -27,6 +27,8 @@ Current maintained fork:
   - Neutral: idle/ready.
 - Built-in update check against this fork releases.
 - Installer with automatic Bonjour handling when missing.
+  
+<img width="1561" height="1114" alt="UxPlay - Receiver" src="https://github.com/user-attachments/assets/fcfef48b-7d25-440f-8af0-9b8928b5ce23" />
 
 ## Changelog (Fork Highlights)
 
@@ -104,6 +106,13 @@ The popup Control Center provides:
 - Enable/disable autostart.
 - One-click health check.
 - Live status cards for runtime, Bonjour, engine, and autostart.
+
+<img width="551" height="490" alt="UxPlay - Control Center" src="https://github.com/user-attachments/assets/762cbf82-b2e7-45eb-8306-7fa3957717e3" />
+
+
+## Tasktray Menü 
+<img width="229" height="314" alt="UxPlay - TaskTray Menü" src="https://github.com/user-attachments/assets/e2d254cf-83eb-492b-8a38-cc543e3f4bd5" />
+
 
 ## Build
 
