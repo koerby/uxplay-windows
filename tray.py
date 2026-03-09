@@ -43,9 +43,9 @@ BONJOUR_DOWNLOAD_URL = (
     "https://download.info.apple.com/Mac_OS_X/061-8098.20100603.gthyu/"
     "BonjourPSSetup.exe"
 )
-UXPLAY_WINDOWS_RELEASES_URL = "https://github.com/koerby/uxplay-windows/releases"
+UXPLAY_WINDOWS_RELEASES_URL = "https://github.com/kaktools/uxplay-windows/releases"
 UXPLAY_UPSTREAM_RELEASES_URL = "https://github.com/FDH2/UxPlay/releases"
-UPDATE_REPO_API_URL = "https://api.github.com/repos/koerby/uxplay-windows/releases/latest"
+UPDATE_REPO_API_URL = "https://api.github.com/repos/kaktools/uxplay-windows/releases/latest"
 UXPLAY_EXE_NAME = "uxplay.exe"
 WM_HOTKEY = 0x0312
 WM_QUIT = 0x0012
@@ -1396,6 +1396,14 @@ class ControlCenterWindow:
 
             meta = tk.Frame(content, bg="#0F1923")
             meta.pack(fill="x", pady=(0, 0))
+            self._copyright_label = tk.Label(
+                meta,
+                text="\u00a9 KaKTools",
+                bg="#0F1923",
+                fg="#AFCBE4",
+                font=("Segoe UI", 9),
+            )
+            self._copyright_label.pack(side="left", padx=(4, 0))
             self._version_label = tk.Label(
                 meta,
                 text=f"Version {self.tray.update_checker.current_version}",
@@ -1716,7 +1724,7 @@ class ControlCenterWindow:
         tk.Button(
             footer,
             text="README",
-            command=lambda: webbrowser.open("https://github.com/koerby/uxplay-windows/blob/main/README.md"),
+            command=lambda: webbrowser.open("https://github.com/kaktools/uxplay-windows/blob/main/README.md"),
             relief="flat",
             bd=0,
             bg="#1E4E69",
@@ -1798,7 +1806,7 @@ class TrayIcon:
             pystray.MenuItem(
                 "License",
                 lambda _: webbrowser.open(
-                    "https://github.com/koerby/uxplay-windows/blob/"
+                    "https://github.com/kaktools/uxplay-windows/blob/"
                     "main/LICENSE.md"
                 )
             ),

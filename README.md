@@ -2,6 +2,8 @@
 
 Free AirPlay receiver setup for Windows 10/11, based on [UxPlay](https://github.com/FDH2/UxPlay), with a tray-first control experience and installer workflow.
 
+Current version: `1.2.2`
+
 ## Fork Attribution
 
 This repository is a fork and continuation of:
@@ -10,7 +12,7 @@ This repository is a fork and continuation of:
 
 Current maintained fork:
 
-- https://github.com/koerby/uxplay-windows
+- https://github.com/kaktools/uxplay-windows
 
 ## What This Project Does
 
@@ -33,7 +35,7 @@ Current maintained fork:
 - Windows-11-style tray Control Center popup with live system status.
 - Colored tray icon state engine (green running, red error, neutral idle).
 - Dependency diagnostics for runtime and Bonjour availability.
-- Integrated update check targeting `koerby/uxplay-windows` releases.
+- Integrated update check targeting `kaktools/uxplay-windows` releases.
 - Improved installer behavior:
   - Prevent duplicate firewall rules.
   - Remove app firewall rules on uninstall.
@@ -44,7 +46,7 @@ Current maintained fork:
 
 Download the latest release here:
 
-- https://github.com/koerby/uxplay-windows/releases/latest
+- https://github.com/kaktools/uxplay-windows/releases/latest
 
 ## Installation Notes
 

@@ -2,11 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "uxplay-windows"
-#define MyAppVersion "1.2.1"
-#define MyAppPublisher "github.com/koerby"
-#define MyAppPublisherURL "https://github.com/koerby"
-#define MyAppSupportURL "https://github.com/koerby/uxplay-windows/issues"
-#define MyAppUpdatesURL "https://github.com/koerby/uxplay-windows/releases"
+#define MyAppVersion "1.2.2"
+#define MyAppPublisher "github.com/kaktools"
+#define MyAppPublisherURL "https://github.com/kaktools"
+#define MyAppSupportURL "https://github.com/kaktools/uxplay-windows/issues"
+#define MyAppUpdatesURL "https://github.com/kaktools/uxplay-windows/releases"
 
 #ifnexist "dist\uxplay-windows\uxplay-windows.exe"
   #error "Missing dist\\uxplay-windows\\uxplay-windows.exe. Build tray app first."
